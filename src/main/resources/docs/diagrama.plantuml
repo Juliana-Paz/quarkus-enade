@@ -1,0 +1,51 @@
+@startuml enadebot
+
+class Topic {
+  id: Integer
+  name: String
+}
+
+class Question {
+  - id: Integer
+  - questionText: String
+  - explanation: String
+}
+
+class Answer {
+  - id: String
+  - answerText: String
+}
+
+class HistoryAnswer {
+  - id: Integer
+  - answeredCorrectly: Boolean
+  - timestamp: DateTime
+}
+
+class User {
+  - id: Integer
+  - name: String
+  - matricula: String
+  - telegram: String
+}
+
+class Curso {
+    - id: Integer
+    - name: String
+}
+
+User "*" --> "1" Curso
+
+HistoryAnswer "*" o--> "1" Question
+HistoryAnswer "*" o--> "1"  User 
+
+Question "*" o--> "1" Topic
+Question "1" *--> "*" Answer: "answers"
+Question "1" *--> "1" Answer: "correctAnswer"
+Question "*" --> "1" Curso
+
+HistoryAnswer "1" --> "1" Answer
+
+Curso "*" o--> "*" Topic
+
+@enduml
