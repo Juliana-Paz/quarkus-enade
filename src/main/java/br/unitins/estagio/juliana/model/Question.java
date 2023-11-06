@@ -16,9 +16,12 @@ public class Question extends DefaultEntity {
     @ManyToOne
     @JoinColumn(name = "id_answer_correct")
     private Answer correctAnswer;
-    @OneToMany
-    @JoinTable(name = "question_answer", joinColumns = @JoinColumn(name = "id_question"), inverseJoinColumns = @JoinColumn(name = "id_answer"))
-    private List<Answer> answers;
+    /*@OneToMany
+    @JoinTable(
+        name = "question_answer",
+        joinColumns = @JoinColumn(name = "id_question"), 
+        inverseJoinColumns = @JoinColumn(name = "id_answer"))
+    private List<Answer> answers;*/
     @ManyToOne
     @JoinColumn(name = "id_curso")
     private Curso curso;
@@ -46,7 +49,7 @@ public class Question extends DefaultEntity {
     public void setCorrectAnswer(Answer correctAnswer) {
         this.correctAnswer = correctAnswer;
     }
-
+/* 
     public List<Answer> getAnswers() {
         return answers;
     }
@@ -55,6 +58,7 @@ public class Question extends DefaultEntity {
         this.answers = answers;
     }
 
-    
+    */   
+ 
 
 }

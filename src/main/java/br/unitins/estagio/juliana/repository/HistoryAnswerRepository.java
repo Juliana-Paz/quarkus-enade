@@ -21,6 +21,11 @@ public class HistoryAnswerRepository implements PanacheRepository<HistoryAnswer>
         
     }
 
-    
+    public HistoryAnswer findUnanswered(Long idUser) {
+
+        String jpql = "user.id = ?1 AND answer IS NULL";
+        return find(jpql, idUser).firstResult();
+                    
+    }
 
 }
