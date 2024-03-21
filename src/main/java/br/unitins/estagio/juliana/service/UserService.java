@@ -19,5 +19,7 @@ public interface UserService {
     public List<User> findByAll();
 
     public List<User> findByCurso(Long idCurso);
+
+    public User telegramUserIdExists(Long id);
     
 }

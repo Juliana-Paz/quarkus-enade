@@ -19,7 +19,7 @@ public class SendMessages {
     
     // Configura o bot para enviar a mensagem todos os dias em um determinado horário
     // segundos - minutos - horas - dia do mês - mês - dia da semana
-    @Scheduled(every = "1s")
+    @Scheduled(every = "1m")
     public void sendMessage() {
 
         Long chatIdL = Long.parseLong(chatId);

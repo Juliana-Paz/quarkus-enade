@@ -58,4 +58,9 @@ public class UserServiceImpl implements UserService {
         return repository.findByCurso(idCurso);
     }
 
+    @Override
+    public User telegramUserIdExists(Long id) {
+        return repository.telegramUserIdExists(id);
+    }
+
 }

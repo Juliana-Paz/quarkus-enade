@@ -15,7 +15,8 @@ public class User extends DefaultEntity {
     @ManyToOne
     @JoinColumn(name = "id_curso")
     private Curso curso;
-    
+    private Long telegramUserId;
+
     public Curso getCurso() {
         return curso;
     }
@@ -39,6 +40,12 @@ public class User extends DefaultEntity {
     }
     public void setTelegram(String telegram) {
         this.telegram = telegram;
+    }
+    public Long getTelegramUserId() {
+        return telegramUserId;
+    }
+    public void setTelegramUserId(Long telegramUserId) {
+        this.telegramUserId = telegramUserId;
     }
     
 }
