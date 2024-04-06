@@ -26,7 +26,7 @@ public class SendMessages {
 
         Question question = enadeService.dailyQuestion(2L);
 
-        bot.sendMessage(question.getQuestionText());
+        bot.sendMessageToAll(question.getQuestionText());
     }
 
 }

@@ -19,6 +19,7 @@ public class UserServiceImpl implements UserService {
     public User insert(User user) {
         User novoUser = new User();
         novoUser.setName(user.getName());
+        novoUser.setTelegramUserId(user.getTelegramUserId());
 
         repository.persist(novoUser);
         return user;
@@ -59,8 +60,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User telegramUserIdExists(Long id) {
-        return repository.telegramUserIdExists(id);
+    public User findByTelegramUserId(Long id) {
+        return repository.findByTelegramUserId(id);
     }
 
 }

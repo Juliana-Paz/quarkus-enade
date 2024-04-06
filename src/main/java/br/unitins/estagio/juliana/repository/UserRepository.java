@@ -21,11 +21,10 @@ public class UserRepository implements PanacheRepository<User> {
 
     }
 
-    // modificar o nome do metodo para getUserId
     // Se nenhum usuário for encontrado com esse ID, o método firstResult() retornará null.
-    public User telegramUserIdExists(Long telegramUserId) {
+    public User findByTelegramUserId(Long telegramUserId) {
 
-        return find("telegramUserId", telegramUserId).firstResult();
+        return find("telegramUserId = ?1", telegramUserId).firstResult();
 
     }
 
