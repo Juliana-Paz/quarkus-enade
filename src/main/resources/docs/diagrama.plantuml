@@ -25,6 +25,7 @@ class HistoryAnswer {
 class User {
   - id: Integer
   - name: String
+  - surname: String
   - matricula: String
   - telegram: String
 }

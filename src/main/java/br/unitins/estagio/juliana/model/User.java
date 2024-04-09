@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 public class User extends DefaultEntity {
 
     private String name;
+    private String surname;
     private String matricula;
     private String telegram;
     @ManyToOne
@@ -20,32 +21,48 @@ public class User extends DefaultEntity {
     public Curso getCurso() {
         return curso;
     }
+
     public void setCurso(Curso curso) {
         this.curso = curso;
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getMatricula() {
         return matricula;
     }
+
     public void setMatricula(String matricula) {
         this.matricula = matricula;
     }
+
     public String getTelegram() {
         return telegram;
     }
+
     public void setTelegram(String telegram) {
         this.telegram = telegram;
     }
+
     public Long getTelegramUserId() {
         return telegramUserId;
     }
+
     public void setTelegramUserId(Long telegramUserId) {
         this.telegramUserId = telegramUserId;
     }
-    
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
 }

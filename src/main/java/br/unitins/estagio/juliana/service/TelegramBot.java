@@ -1,8 +1,5 @@
 package br.unitins.estagio.juliana.service;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +7,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import br.unitins.estagio.juliana.model.User;
 import io.quarkus.scheduler.Scheduled;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
@@ -57,21 +56,21 @@ public class TelegramBot {
             e.printStackTrace();
         }
     }
-    
+
     private JsonObject buildMessageBody(String message, String chatId) {
         return Json.createObjectBuilder()
                 .add("chat_id", chatId)
                 .add("text", message)
                 .build();
     }
-    
+
     private Response createSendMessageRequest(JsonObject jsonBody) {
         String sendMessageUrl = TELEGRAM_API_BASE_URL + token + "/sendMessage";
         Invocation.Builder builder = client.target(sendMessageUrl)
                 .request(MediaType.APPLICATION_JSON);
         return builder.post(Entity.json(jsonBody));
     }
-    
+
     private void processSendMessageResponse(Response response) {
         JsonObject jsonResponse = response.readEntity(JsonObject.class);
         boolean ok = jsonResponse.getBoolean("ok", false);
@@ -79,7 +78,7 @@ public class TelegramBot {
             System.err.println("Couldn't successfully send message, bad response.");
         }
     }
-    
+
     public void sendMessageToAll(String message) {
         try {
             List<User> usersWithTelegramId = filterUsersWithTelegramId(userService.findByAll());
@@ -89,30 +88,27 @@ public class TelegramBot {
             e.printStackTrace();
         }
     }
-    
-    private List<User> filterUsersWithTelegramId(List<User> users) {
-        return users.stream()
-                .filter(user -> user.getTelegramUserId() != null)
-                .collect(Collectors.toList());
-    }
-    
+
     private void sendMessagesToUsers(List<User> users, String message) {
         for (User user : users) {
             sendMessage(message, user.getTelegramUserId().toString());
         }
     }
-    
+
+    private List<User> filterUsersWithTelegramId(List<User> users) {
+        return users.stream()
+                .filter(user -> user.getTelegramUserId() != null)
+                .collect(Collectors.toList());
+    }
+
     @Scheduled(every = "1s")
-    public void pollUpdates() {
+    public void getUpdates() {
         // Exibe uma mensagem indicando o início da consulta por atualizações
-        System.out.println("iniciado um poll");
+        System.out.println("searching Updates...");
         try {
             // Obtém as atualizações do Telegram
-            JsonObject updatesJson = fetchUpdatesFromTelegram();
-            // Processa as atualizações, se houver
-            if (updatesJson != null) {
-                processUpdates(updatesJson);
-            }
+            JsonObject updatesJson = searchForUpdates();
+            processEachUpdate(updatesJson);
         } catch (Exception e) {
             // Trata exceções que podem ocorrer durante a consulta por atualizações
             System.err.println("Erro ao consultar atualizações: " + e.getMessage());
@@ -120,7 +116,7 @@ public class TelegramBot {
     }
 
     // Busca as atualizações do telegram
-    private JsonObject fetchUpdatesFromTelegram() {
+    private JsonObject searchForUpdates() {
         // Faz uma chamada para obter as atualizações do Telegram
         Invocation.Builder builder = client.target(TELEGRAM_API_BASE_URL + token + "/getUpdates")
                 .request(MediaType.APPLICATION_JSON);
@@ -137,7 +133,7 @@ public class TelegramBot {
         }
     }
 
-    private void processUpdates(JsonObject updatesJson) {
+    private void processEachUpdate(JsonObject updatesJson) {
         // Verifica se existem atualizações disponíveis no JSON
         if (!updatesJson.containsKey("result")) {
             return;
@@ -154,49 +150,77 @@ public class TelegramBot {
             if (update.containsKey("message")) {
                 JsonObject message = update.getJsonObject("message");
                 // Processa a mensagem do remetente
-                processUserMessage(message);
+                extractUserData(message);
             }
         }
     }
-    
-    private void processUserMessage(JsonObject message) {
+
+    private void extractUserData(JsonObject message) {
+        User user = new User();
         // Verifica se a mensagem contém informações do remetente
         if (message.containsKey("from")) {
             JsonObject sender = message.getJsonObject("from");
-            Long userId = extractUserId(sender);
-            String userFirstName = extractUserFirstName(sender);
-            persistUserIfNotExists(userId, userFirstName);
+
+            Long userId = extractTelegramUserId(sender);
+            user.setTelegramUserId(userId);
+            requestUserName(userId);
+            user.setName(extractUserTextMessage(message));
+            requestUserSurname(userId);
+            user.setSurname(extractUserTextMessage(message));
+            requestUserPhoneNumber(userId);
+            user.setTelegram(extractUserTextMessage(message));
+            requestUserMatricula(userId);
+            user.setMatricula(extractUserTextMessage(message));
+
+            persistUserIfNotExists(userId, user);
         }
     }
 
-    private Long extractUserId(JsonObject sender) {
+    private String extractUserTextMessage(JsonObject message) {
+        // Verifica se a mensagem contém o texto
+        if (message.containsKey("text")) {
+            // Extrai e retorna o texto da mensagem
+            return message.getString("text");
+        } else {
+            // Retorna null se não houver texto na mensagem
+            return null;
+        }
+    }
+
+    private Long extractTelegramUserId(JsonObject sender) {
         // Obtém o ID do remetente
         return sender.getJsonNumber("id").longValue();
     }
 
-    private String extractUserFirstName(JsonObject sender) {
-        // Obtém o primeiro nome do remetente
-        return sender.getString("first_name");
+    private void requestUserName(Long userId) {
+        sendMessage("Informe seu nome: ", userId.toString());
     }
-    
-    private void persistUserIfNotExists(Long userId, String userFirstName) {
+
+    private void requestUserSurname(Long userId) {
+        sendMessage("Informe seu nome sobrenome: ", userId.toString());
+    }
+
+    private void requestUserPhoneNumber(Long userId) {
+        sendMessage("Informe numero de telefone: ", userId.toString());
+    }
+
+    private void requestUserMatricula(Long userId) {
+        sendMessage("Informe sua matrícula: ", userId.toString());
+    }
+
+    private void persistUserIfNotExists(Long userId, User user) {
         // Verifica se o usuário já existe no banco de dados
         if (userService.findByTelegramUserId(userId) == null) {
-            // Se o usuário não existir, armazena o ID no banco de dados
-            User user = new User();
-            user.setTelegramUserId(userId);
-            user.setName(userFirstName);
+            // Se o usuário não existir, armazena no banco de dados
             userService.insert(user);
         } else {
             System.out.println("O usuário já existe no banco de dados.");
         }
     }
-    
+
     @PreDestroy
     private void closeClient() {
         client.close();
     }
 
 }
-
-
