@@ -41,6 +41,9 @@ public class TelegramBot {
     @Inject
     EnadeServiceImpl enadeService;
 
+    // Variável para rastrear o estado atual da conversa com o usuário
+    private int currentQuestionIndex = 0;
+
     @PostConstruct
     void initClient() {
         client = ClientBuilder.newClient();
@@ -101,7 +104,7 @@ public class TelegramBot {
                 .collect(Collectors.toList());
     }
 
-    @Scheduled(every = "1m")
+    @Scheduled(every = "1s")
     public void getUpdates() {
         // Exibe uma mensagem indicando o início da consulta por atualizações
         System.out.println("searching Updates...");
@@ -165,8 +168,8 @@ public class TelegramBot {
             user.setTelegramUserId(userId);
 
             String userMessage = extractUserTextMessage(message);
-
-            if (!userExists(userId) && isCommandMessage(userMessage.toString(), "/start")) {
+            // !userExists(userId)
+            if (isCommandMessage(userMessage.toString(), "/start")) {
                 System.out.println("o usuario " + user.getTelegramUserId() + " enviou " + userMessage);
 
             }
@@ -216,6 +219,14 @@ public class TelegramBot {
             System.out.println("Erro ao inserir novo usuário: " + e);
         }
     }
+
+    // Array de perguntas na ordem desejada
+    private final String[] questions = {
+            "Informe seu nome:",
+            "Informe seu sobrenome:",
+            "Informe seu número de telefone:",
+            "Informe sua matrícula:"
+    };
 
     @PreDestroy
     private void closeClient() {
