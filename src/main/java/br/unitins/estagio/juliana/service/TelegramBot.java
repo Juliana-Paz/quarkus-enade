@@ -44,6 +44,14 @@ public class TelegramBot {
     // Variável para rastrear o estado atual da conversa com o usuário
     private int currentQuestionIndex = 0;
 
+    // Array de perguntas na ordem desejada
+    private final String[] questions = {
+            "Informe seu nome:",
+            "Informe seu sobrenome:",
+            "Informe seu número de telefone:",
+            "Informe sua matrícula:"
+    };
+
     @PostConstruct
     void initClient() {
         client = ClientBuilder.newClient();
@@ -119,6 +127,7 @@ public class TelegramBot {
     }
 
     // Busca as atualizações do telegram
+    // Retorna todo o JSON
     private JsonObject searchForUpdates() {
         // Faz uma chamada para obter as atualizações do Telegram
         Invocation.Builder builder = client.target(TELEGRAM_API_BASE_URL + token + "/getUpdates")
@@ -151,9 +160,14 @@ public class TelegramBot {
 
             // Verifica se a atualização contém uma mensagem
             if (update.containsKey("message")) {
-                JsonObject message = update.getJsonObject("message");
+                JsonObject message = update.getJsonObject("message");                
+                System.out.println("O usuário possui o update_id" +  update.getJsonNumber("update_id").longValue());
+
                 // Processa a mensagem do remetente
                 extractUserData(message);
+
+                System.out.println("-------------------------------------");
+        
             }
         }
     }
@@ -162,16 +176,25 @@ public class TelegramBot {
         User user = new User();
         // Verifica se a mensagem contém informações do remetente
         if (message.containsKey("from")) {
+
+            // Modificar, pegar somente o id ao invés de todo o from (só preciso do ID)
             JsonObject sender = message.getJsonObject("from");
 
             Long userId = extractTelegramUserId(sender);
             user.setTelegramUserId(userId);
 
             String userMessage = extractUserTextMessage(message);
-            // !userExists(userId)
-            if (isCommandMessage(userMessage.toString(), "/start")) {
-                System.out.println("o usuario " + user.getTelegramUserId() + " enviou " + userMessage);
+           
 
+            // Verifica se é a primeira mensagem do usuário ("/start")
+            if (isCommandMessage(userMessage, "/start")) {
+                System.out.println("O usuário " + user.getTelegramUserId() + " enviou " + userMessage);
+
+                // Envia a primeira pergunta
+                sendNextQuestion(userId);
+            } else {
+                // Processa a resposta do usuário para a pergunta atual
+                processUserResponse(userId, userMessage, user);
             }
 
             insertUser(userId, user);
@@ -220,17 +243,54 @@ public class TelegramBot {
         }
     }
 
-    // Array de perguntas na ordem desejada
-    private final String[] questions = {
-            "Informe seu nome:",
-            "Informe seu sobrenome:",
-            "Informe seu número de telefone:",
-            "Informe sua matrícula:"
-    };
+    // Método para enviar a próxima pergunta ao usuário
+    private void sendNextQuestion(Long userId) {
+        if (currentQuestionIndex < questions.length) {
+            String nextQuestion = questions[currentQuestionIndex];
+            sendMessage(nextQuestion, userId.toString());
+        } else {
+            // Todas as perguntas foram feitas, finalizar o processo ou fazer outra ação
+        }
+    }
+
+    // Método para processar a resposta do usuário
+    private void processUserResponse(Long userId, String response, User user) {
+        // Atualizar as informações do usuário com base na resposta
+        if (currentQuestionIndex == 0) {
+            user.setName(response);
+        } else if (currentQuestionIndex == 1) {
+            user.setSurname(response);
+        } else if (currentQuestionIndex == 2) {
+            user.setTelegram(response);
+        } else if (currentQuestionIndex == 3) {
+            user.setMatricula(response);
+        }
+
+        // Enviar a próxima pergunta ou finalizar o processo
+        currentQuestionIndex++;
+        sendNextQuestion(userId);
+    }
 
     @PreDestroy
     private void closeClient() {
         client.close();
+    }
+
+
+    private void solucaoMagnificaParaMeusProblemas(JsonObject message) {
+
+        long lastMessageId = 0;
+        Long currentMessegeId = message.getJsonNumber("update_id").longValue();
+
+        if (lastMessageId < currentMessegeId) {
+            lastMessageId = currentMessegeId;
+            // faz o que ten que fazer: envia a mensagem e pega o resultado do usuario
+            // pega o messageId da nova mensagem do user e add em currentMessgageId
+
+        } 
+            // caso o lastMessageId seja menor sigfica que o usuario não respondeu deve ficar travado
+        
+        
     }
 
 }
