@@ -6,9 +6,11 @@ import java.util.Random;
 
 import br.unitins.estagio.juliana.model.HistoryAnswer;
 import br.unitins.estagio.juliana.model.Question;
+import br.unitins.estagio.juliana.model.Topic;
 import br.unitins.estagio.juliana.model.User;
 import br.unitins.estagio.juliana.repository.HistoryAnswerRepository;
 import br.unitins.estagio.juliana.repository.QuestionRepository;
+import br.unitins.estagio.juliana.repository.TopicRepository;
 import br.unitins.estagio.juliana.repository.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,6 +27,9 @@ public class EnadeServiceImpl implements EnadeServive {
 
     @Inject
     UserRepository userRepository;    
+
+    @Inject
+    TopicRepository topicRepository;
 
     @Transactional
     @Override
@@ -58,7 +63,8 @@ public class EnadeServiceImpl implements EnadeServive {
         
         Long idCurso = user.getCurso().getId();
 
-        List<Question> totalQuestoes = quentionRepository.findAll(idCurso); 
+        // Armazena todas as questões de um determinado curso em uma lista
+        List<Question> totalQuestoes = quentionRepository.findAll(idCurso);
         
         List<Question> questoesRespondidas = historyAnswerRepository.findAllQuestionsByUser(user.getId());
         

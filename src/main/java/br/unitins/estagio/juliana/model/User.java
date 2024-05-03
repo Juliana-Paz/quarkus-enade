@@ -10,21 +10,13 @@ import jakarta.persistence.Table;
 public class User extends DefaultEntity {
 
     private String name;
-    private String surname;
-    private String matricula;
-    private String telegram;
+    private String lastName;
+    private String enrollment;
+    private String phoneNumber;
     @ManyToOne
     @JoinColumn(name = "id_curso")
     private Curso curso;
     private Long telegramUserId;
-
-    public Curso getCurso() {
-        return curso;
-    }
-
-    public void setCurso(Curso curso) {
-        this.curso = curso;
-    }
 
     public String getName() {
         return name;
@@ -34,20 +26,36 @@ public class User extends DefaultEntity {
         this.name = name;
     }
 
-    public String getMatricula() {
-        return matricula;
+    public String getlastName() {
+        return lastName;
     }
 
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
+    public void setlastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public String getTelegram() {
-        return telegram;
+    public String getEnrollment() {
+        return enrollment;
     }
 
-    public void setTelegram(String telegram) {
-        this.telegram = telegram;
+    public void setEnrollment(String enrollment) {
+        this.enrollment = enrollment;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Curso getCurso() {
+        return curso;
+    }
+
+    public void setCurso(Curso curso) {
+        this.curso = curso;
     }
 
     public Long getTelegramUserId() {
@@ -58,11 +66,4 @@ public class User extends DefaultEntity {
         this.telegramUserId = telegramUserId;
     }
 
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
 }

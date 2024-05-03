@@ -4,9 +4,9 @@ insert into Curso (name) values('Serviço Social');
 
 
 
-insert into Users (name, matricula, telegram, id_curso) values('Juliana', '093094000233', '63901304814', 1);
-insert into Users (name, matricula, telegram, id_curso) values('Kaio', '092094003452', '63991356856', 2);
-insert into Users (name, matricula, telegram, id_curso) values('Ailana', '456094000931', '63992345678', 1);
+insert into Users (name, enrollment, phoneNumber, id_curso) values('Juliana', '093094000233', '63901304814', 1);
+insert into Users (name, enrollment, phoneNumber, id_curso) values('Kaio', '092094003452', '63991356856', 2);
+insert into Users (name, enrollment, phoneNumber, id_curso) values('Ailana', '456094000931', '63992345678', 1);
 
 
 

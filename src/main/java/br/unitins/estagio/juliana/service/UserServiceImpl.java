@@ -19,10 +19,10 @@ public class UserServiceImpl implements UserService {
     public User insert(User user) {
         User novoUser = new User();
         novoUser.setName(user.getName());
-        novoUser.setSurname(user.getSurname());
+        novoUser.setlastName(user.getlastName());
         novoUser.setTelegramUserId(user.getTelegramUserId());
-        novoUser.setMatricula(user.getMatricula());
-        novoUser.setTelegram(user.getTelegram());
+        novoUser.setEnrollment(user.getEnrollment());
+        novoUser.setPhoneNumber(user.getPhoneNumber());
         repository.persist(novoUser);
         return user;
     }

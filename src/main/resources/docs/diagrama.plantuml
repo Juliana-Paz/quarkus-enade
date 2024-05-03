@@ -25,9 +25,10 @@ class HistoryAnswer {
 class User {
   - id: Integer
   - name: String
-  - surname: String
-  - matricula: String
-  - telegram: String
+  - lastName: String
+  - enrollment: String
+  - phoneNumber: String
+  - telegramUserId: Long
 }
 
 class Curso {

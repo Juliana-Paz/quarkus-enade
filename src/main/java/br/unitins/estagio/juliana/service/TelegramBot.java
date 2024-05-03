@@ -259,11 +259,11 @@ public class TelegramBot {
         if (currentQuestionIndex == 0) {
             user.setName(response);
         } else if (currentQuestionIndex == 1) {
-            user.setSurname(response);
+            user.setlastName(response);
         } else if (currentQuestionIndex == 2) {
-            user.setTelegram(response);
+            user.setPhoneNumber(response);
         } else if (currentQuestionIndex == 3) {
-            user.setMatricula(response);
+            user.setEnrollment(response);
         }
 
         // Enviar a próxima pergunta ou finalizar o processo
