@@ -64,15 +64,15 @@ public class EnadeServiceImpl implements EnadeServive {
         Long idCurso = user.getCurso().getId();
 
         // Armazena todas as questões de um determinado curso em uma lista
-        List<Question> totalQuestoes = quentionRepository.findAll(idCurso);
+        List<Question> totalQuestoesCurso = quentionRepository.findAll(idCurso);
         
         List<Question> questoesRespondidas = historyAnswerRepository.findAllQuestionsByUser(user.getId());
         
-        totalQuestoes.removeAll(questoesRespondidas);
+        totalQuestoesCurso.removeAll(questoesRespondidas);
         
         Random random = new Random();
-        int randomIndex = random.nextInt(totalQuestoes.size());
-        Question question = totalQuestoes.get(randomIndex);
+        int randomIndex = random.nextInt(totalQuestoesCurso.size());
+        Question question = totalQuestoesCurso.get(randomIndex);
 
         return question;
 
