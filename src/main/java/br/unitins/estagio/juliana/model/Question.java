@@ -23,6 +23,7 @@ public class Question extends DefaultEntity {
     @ManyToOne
     @JoinColumn(name = "id_curso")
     private Curso curso;
+    //TODO topic
 
     public String getQuestionText() {
         return questionText;

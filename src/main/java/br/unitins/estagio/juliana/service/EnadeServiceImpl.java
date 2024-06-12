@@ -33,18 +33,15 @@ public class EnadeServiceImpl implements EnadeServive {
 
     @Transactional
     @Override
-    public Question dailyQuestion(Long idUser) {
-        // to do
-        // verificar se ha historyAnswer em aberto (if is null)
-        // Buscar total de questoes do curso (menos as que o user ja respondeu)
+    public Question dailyQuestion(Long telegramIdUser) {
+        
+        User user = userRepository.findById(telegramIdUser);
           
-        HistoryAnswer h = historyAnswerRepository.findUnanswered(idUser);        
+        HistoryAnswer h = historyAnswerRepository.findUnanswered(user.getId());        
 
         if (h != null) {
             return h.getQuestion();
         }
-
-        User user = userRepository.findById(idUser);
 
         Question question = findNewRandomQuestion(user);
         

@@ -1,10 +1,13 @@
 package br.unitins.estagio.juliana.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import br.unitins.estagio.juliana.model.Question;
 import br.unitins.estagio.juliana.model.User;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.annotation.PostConstruct;
@@ -43,6 +46,10 @@ public class TelegramBot {
 
     // Variável para rastrear o estado atual da conversa com o usuário
     private int currentQuestionIndex = 0;
+    
+    private Map<Long, String> userAndAnswer = new HashMap<>();
+
+    private boolean isLastItem = false;
 
     // Array de perguntas na ordem desejada
     private final String[] questions = {
@@ -90,10 +97,15 @@ public class TelegramBot {
         }
     }
 
-    public void sendMessageToAll(String message) {
+    public void sendMessageToAll() {
         try {
             List<User> usersWithTelegramId = filterUsersWithTelegramId(userService.findByAll());
-            sendMessagesToUsers(usersWithTelegramId, message);
+
+            usersWithTelegramId.forEach((user) -> {
+                Question question = enadeService.dailyQuestion(user.getId());
+                sendMessagesToUsers(usersWithTelegramId, question.getQuestionText());
+            });
+
         } catch (Exception e) {
             System.err.println("Couldn't successfully send message to all users: " + e.getMessage());
             e.printStackTrace();
@@ -112,7 +124,7 @@ public class TelegramBot {
                 .collect(Collectors.toList());
     }
 
-    @Scheduled(every = "1s")
+    //@Scheduled(every = "1s")
     public void getUpdates() {
         // Exibe uma mensagem indicando o início da consulta por atualizações
         System.out.println("searching Updates...");
@@ -154,6 +166,8 @@ public class TelegramBot {
         // Obtém a lista de atualizações
         JsonArray results = updatesJson.getJsonArray("result");
 
+        JsonValue lastItem = results.get(results.size() - 1);
+
         // Itera sobre cada atualização na lista
         for (JsonValue result : results) {
             JsonObject update = (JsonObject) result;
@@ -162,6 +176,12 @@ public class TelegramBot {
             if (update.containsKey("message")) {
                 JsonObject message = update.getJsonObject("message");                
                 System.out.println("O usuário possui o update_id" +  update.getJsonNumber("update_id").longValue());
+
+                isLastItem = false;
+
+                if (lastItem == result) {
+                    isLastItem = true;
+                }
 
                 // Processa a mensagem do remetente
                 extractUserData(message);
@@ -255,20 +275,35 @@ public class TelegramBot {
 
     // Método para processar a resposta do usuário
     private void processUserResponse(Long userId, String response, User user) {
-        // Atualizar as informações do usuário com base na resposta
-        if (currentQuestionIndex == 0) {
-            user.setName(response);
-        } else if (currentQuestionIndex == 1) {
-            user.setlastName(response);
-        } else if (currentQuestionIndex == 2) {
-            user.setPhoneNumber(response);
-        } else if (currentQuestionIndex == 3) {
-            user.setEnrollment(response);
+        String answer = userAndAnswer.get(userId) != null ? userAndAnswer.get(userId) : response;
+
+        System.out.println("------------ process user response ------------");
+        System.out.println("old: " + answer);
+        System.out.println("new: " + response);
+        System.out.println("isLastItem: " + isLastItem);
+        System.out.println("------------ process user response ------------");
+
+        if (!answer.equals(response) && isLastItem) {
+            // Atualizar as informações do usuário com base na resposta
+            if (currentQuestionIndex == 0) {
+                user.setName(response);
+            } else if (currentQuestionIndex == 1) {
+                user.setlastName(response);
+            } else if (currentQuestionIndex == 2) {
+                user.setPhoneNumber(response);
+            } else if (currentQuestionIndex == 3) {
+                user.setEnrollment(response);
+            }
+
+            // Enviar a próxima pergunta ou finalizar o processo
+            currentQuestionIndex++;
+            sendNextQuestion(userId);
         }
 
-        // Enviar a próxima pergunta ou finalizar o processo
-        currentQuestionIndex++;
-        sendNextQuestion(userId);
+
+        if (isLastItem) {
+            userAndAnswer.put(userId, response);
+        }
     }
 
     @PreDestroy

@@ -13,4 +13,5 @@ public class QuestionRepository implements PanacheRepository<Question> {
         return find("curso.id = ?1", idCurso).list();
     }
 
+
 }

@@ -8,8 +8,8 @@ import jakarta.inject.Inject;
 
 public class SendMessages {
     
-    @ConfigProperty(name = "telegram.chatId")
-    String chatId;
+    // @ConfigProperty(name = "telegram.chatId")
+    // String chatId;
     
     @Inject
     TelegramBot bot;
@@ -19,14 +19,9 @@ public class SendMessages {
     
     // Configura o bot para enviar a mensagem todos os dias em um determinado horário
     // segundos - minutos - horas - dia do mês - mês - dia da semana
-    @Scheduled(every = "1s")
+    //@Scheduled(every = "1s")
     public void sendMessage() {
-
-        Long chatIdL = Long.parseLong(chatId);
-
-        Question question = enadeService.dailyQuestion(2L);
-
-        bot.sendMessageToAll(question.getQuestionText());
+        bot.sendMessageToAll();
     }
 
 }
